@@ -70,25 +70,25 @@ export const COMPANIES: Company[] = [
     key: "jewels", name: "SKAD JEWELS INDIA PRIVATE LIMITED", short: "SKAD Jewels",
     sector: "Manufacturing · Diamond trading", location: "India",
     description: "Manufacturing and diamond trading (natural and lab-grown), sourcing, B2B supply and international commerce.",
-    brands: ["BENAVI"], regNo: "", website: "", image: "", imageLabel: "Diamond manufacturing photograph", route: "Diamond Trading",
+    brands: ["BENAVI"], regNo: "", website: "", image: "/images/benavi-img.webp", imageLabel: "Diamond manufacturing photograph", route: "Diamond Trading",
   },
   {
     key: "luxora", name: "LUXORA GLOW ESSENTIALS PRIVATE LIMITED", short: "Luxora Glow Essentials",
     sector: "Beauty · Personal care", location: "",
     description: "Premium beauty, hair, skin and personal care. The company behind LUXORA GLOW.",
-    brands: ["LUXORA GLOW"], regNo: "", website: "", image: "", imageLabel: "Beauty studio photograph", route: "Business Partnership",
+    brands: ["LUXORA GLOW"], regNo: "", website: "", image: "/images/luxora-glow-img.webp", imageLabel: "Beauty studio photograph", route: "Business Partnership",
   },
   {
     key: "detara", name: "DETARA LTD", short: "DETARA LTD",
     sector: "Fine jewellery", location: "London, United Kingdom",
     description: "Fine diamond jewellery and engagement rings. The company behind DETARA.",
-    brands: ["DETARA"], regNo: "", website: "", image: "", imageLabel: "Fine jewellery photograph", route: "Business Partnership",
+    brands: ["DETARA"], regNo: "", website: "https://www.detara.store/", image: "/images/detara-img.webp", imageLabel: "Fine jewellery photograph", route: "Business Partnership",
   },
   {
     key: "diatech", name: "SKAD DIATECH EXPORTS", short: "SKAD Diatech Exports",
     sector: "Global commerce · Trade", location: "",
     description: "Global commerce, trade and digital infrastructure. The ecosystem home of SKAD CommerceOS and SKAD Commerce Lab.",
-    brands: [], regNo: "", website: "", image: "", imageLabel: "Trade and logistics photograph", route: "International Trade",
+    brands: [], regNo: "", website: "", image: "/images/skad-diatech-export-img.webp", imageLabel: "Trade and logistics photograph", route: "International Trade",
   },
 ];
 
@@ -101,15 +101,15 @@ export type Brand = {
 
 export const BRANDS: Brand[] = [
   { key: "detara", name: "DETARA", category: "Fine jewellery", tagline: "Fine Diamond Jewellery & Engagement Rings",
-    company: "Brand of DETARA LTD, London", url: "https://www.detara.store/", logo: "/images/detara.svg", image: "", route: "General" },
+    company: "Brand of DETARA LTD, London", url: "https://www.detara.store/", logo: "/images/detara-logo.svg", image: "", route: "General" },
   { key: "luxora", name: "LUXORA GLOW", category: "Beauty", tagline: "Hair, Skin & Beauty Studio",
-    company: "Brand of LUXORA GLOW ESSENTIALS PRIVATE LIMITED", url: "", logo: "/images/luxora-glow.svg", image: "", route: "General" },
+    company: "Brand of LUXORA GLOW ESSENTIALS PRIVATE LIMITED", url: "", logo: "/images/luxora-glow-logo.svg", image: "", route: "General" },
   { key: "benavi", name: "BENAVI", category: "Silver jewellery", tagline: "Crafting Dreams in Silver: Your Story, Your Jewel.",
-    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "https://benavi.in/", logo: "/images/benavi.svg", image: "", route: "General" },
+    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "https://benavi.in/", logo: "/images/benavi-logo.svg", image: "", route: "General" },
   { key: "rupaari", name: "RUPAARI", category: "Sarees · Indian fashion", tagline: "Sarees and Indian fashion, heritage with a contemporary eye.",
-    company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari.svg", image: "", route: "General" },
+    company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari-logo.svg", image: "", route: "General" },
   { key: "casesuno", name: "CASE SUNO", category: "Legal technology", tagline: "Legal technology.",
-    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno.svg", image: "", route: "Technology" },
+    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
   { key: "zemo", name: "ZEMO", category: "New-gen fashion", tagline: "Wear your way. Custom, streetwear and innerwear.",
     company: "Part of SKAD GROUP", url: "", logo: "", image: "", route: "General" },
 ];
