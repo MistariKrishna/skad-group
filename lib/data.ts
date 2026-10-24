@@ -101,15 +101,15 @@ export type Brand = {
 
 export const BRANDS: Brand[] = [
   { key: "detara", name: "DETARA", category: "Fine jewellery", tagline: "Fine Diamond Jewellery & Engagement Rings",
-    company: "Brand of DETARA LTD, London", url: "", logo: "/images/detara.svg", image: "", route: "General" },
+    company: "Brand of DETARA LTD, London", url: "https://www.detara.store/", logo: "/images/detara.svg", image: "", route: "General" },
   { key: "luxora", name: "LUXORA GLOW", category: "Beauty", tagline: "Hair, Skin & Beauty Studio",
     company: "Brand of LUXORA GLOW ESSENTIALS PRIVATE LIMITED", url: "", logo: "/images/luxora-glow.svg", image: "", route: "General" },
   { key: "benavi", name: "BENAVI", category: "Silver jewellery", tagline: "Crafting Dreams in Silver: Your Story, Your Jewel.",
-    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "", logo: "/images/benavi.svg", image: "", route: "General" },
+    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "https://benavi.in/", logo: "/images/benavi.svg", image: "", route: "General" },
   { key: "rupaari", name: "RUPAARI", category: "Sarees · Indian fashion", tagline: "Sarees and Indian fashion, heritage with a contemporary eye.",
     company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari.svg", image: "", route: "General" },
   { key: "casesuno", name: "CASE SUNO", category: "Legal technology", tagline: "Legal technology.",
-    company: "Part of SKAD GROUP", url: "", logo: "/images/case-suno.svg", image: "", route: "Technology" },
+    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno.svg", image: "", route: "Technology" },
   { key: "zemo", name: "ZEMO", category: "New-gen fashion", tagline: "Wear your way. Custom, streetwear and innerwear.",
     company: "Part of SKAD GROUP", url: "", logo: "", image: "", route: "General" },
 ];
