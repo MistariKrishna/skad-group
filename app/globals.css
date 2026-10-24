@@ -1,26 +1,54 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 96px;
+  -webkit-text-size-adjust: 100%;
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+body {
+  @apply bg-white font-sans text-body antialiased;
 }
+::selection { background: #0a1f44; color: #fff; }
+:focus-visible { outline: 2px solid #8a6a1f; outline-offset: 3px; }
+button { cursor: pointer; }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer components {
+  .container-x { @apply mx-auto w-full max-w-content px-5 sm:px-8; }
+  .section-y { @apply py-20 md:py-28; }
+
+  /* Used on the 404 and legal pages */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-[15px] font-medium transition-colors duration-200;
+  }
+  .btn-primary { @apply bg-navy text-white hover:bg-navy-soft; }
+  .btn-secondary { @apply border border-navy/20 text-navy hover:border-navy hover:bg-navy hover:text-white; }
+  .btn-light { @apply bg-white text-navy hover:bg-mist; }
+
+  .link-arrow {
+    @apply inline-flex items-center gap-1.5 text-[15px] font-medium text-navy underline decoration-rule decoration-1 underline-offset-[6px] transition-colors duration-200 hover:decoration-navy;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.link-arrow [aria-hidden="true"] { transition: transform .3s cubic-bezier(.22, 1, .36, 1); }
+.link-arrow:hover [aria-hidden="true"] { transform: translateX(4px); }
+
+/* Sliding underline (footer links) */
+.u-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  padding-bottom: 2px;
+  transition: background-size .35s cubic-bezier(.22, 1, .36, 1), color .25s ease;
+}
+.u-link:hover { background-size: 100% 1px; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
 }
