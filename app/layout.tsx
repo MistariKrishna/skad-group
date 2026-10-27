@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Archivo_Black, Bodoni_Moda, Cormorant_Garamond, DM_Sans, IBM_Plex_Mono, Source_Serif_4 } from "next/font/google";
 import Providers from "@/components/Providers";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
 const serif = Source_Serif_4({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-serif", display: "swap" });
@@ -17,14 +18,25 @@ const bodoni = Bodoni_Moda({
 const archivo = Archivo_Black({ subsets: ["latin"], weight: "400", variable: "--font-archivo", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "SKAD GROUP | Building Businesses. Creating Brands. Shaping the Future.",
-  description:
-    "SKAD GROUP is a diversified business group building companies, brands, technology platforms and ventures across markets.",
+  metadataBase: new URL(SITE_URL),
+  title: { default: SITE_TITLE, template: `%s | ${SITE_NAME}` },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  alternates: { canonical: "/" },
   openGraph: {
-    title: "SKAD GROUP",
-    description: "A diversified business group building companies, brands, technology platforms and ventures across markets.",
     type: "website",
+    url: "/",
+    siteName: SITE_NAME,
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    locale: "en_GB",
   },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
+  robots: { index: true, follow: true },
 };
 
 export const viewport: Viewport = { themeColor: "#0A1F44" };

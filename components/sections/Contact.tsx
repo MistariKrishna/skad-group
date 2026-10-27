@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import { useContact } from "@/components/providers/ContactProvider";
@@ -10,14 +10,30 @@ import { PillSubmit } from "@/components/ui/Pill";
 import { BOUNCE } from "@/lib/motion";
 import { COMPANIES, CONTACT_DETAILS, COUNTRIES, ENQUIRY_TYPES, PARTNER_ROUTES } from "@/lib/data";
 
-type FormState = { name: string; company: string; email: string; phone: string; country: string; message: string; consent: boolean };
-type FieldKey = keyof FormState | "type";
+type FormState = {
+  name: string; company: string; role: string; email: string; phone: string;
+  website: string; country: string; message: string; consent: boolean;
+};
+type FieldKey = keyof FormState | "type" | "file";
 type Errors = Partial<Record<FieldKey, string>>;
 
-const EMPTY: FormState = { name: "", company: "", email: "", phone: "", country: "", message: "", consent: false };
-const ORDER: FieldKey[] = ["type", "name", "company", "email", "phone", "country", "message", "consent"];
+const EMPTY: FormState = { name: "", company: "", role: "", email: "", phone: "", website: "", country: "", message: "", consent: false };
+const ORDER: FieldKey[] = ["type", "name", "company", "role", "email", "phone", "website", "country", "message", "file", "consent"];
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const PHONE_RE = /^\+?[0-9\s().-]{7,20}$/;
+const URL_RE = /^(https?:\/\/)?[\w-]+(\.[\w-]+)+(\/\S*)?$/i;
+
+const FILE_ACCEPT = ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+const FILE_RE = /\.(pdf|docx?)$/i;
+const FILE_MAX = 4 * 1024 * 1024; // 4 MB
+
+const checkFile = (f: File): string | undefined => {
+  if (!FILE_RE.test(f.name)) return "Upload a PDF, DOC or DOCX file.";
+  if (f.size > FILE_MAX) return "The file must be 4 MB or smaller.";
+  return undefined;
+};
+
+const formatSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`);
 
 const control = (err?: string) =>
   clsx(
@@ -64,12 +80,19 @@ function DetailIcon({ kind }: { kind: "pin" | "mail" | "phone" | "clock" }) {
 }
 
 export default function Contact() {
-  const { enquiry, setEnquiry } = useContact();
+  const { enquiry, setEnquiry, prefill } = useContact();
   const [form, setForm] = useState<FormState>(EMPTY);
+  const [file, setFile] = useState<File | null>(null);
   const [errors, setErrors] = useState<Errors>({});
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  const [serverError, setServerError] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const trapRef = useRef<HTMLInputElement>(null);
+  const startedAt = useRef(0);
+
   const companyRequired = PARTNER_ROUTES.includes(enquiry);
+  const isCareers = enquiry === "Careers";
   const { address, email, phone, hours } = CONTACT_DETAILS;
 
   const details: { kind: "pin" | "mail" | "phone" | "clock"; label: string; content: ReactNode }[] = [];
@@ -79,13 +102,47 @@ export default function Contact() {
   if (hours) details.push({ kind: "clock", label: "Hours", content: hours });
 
   useEffect(() => {
+    startedAt.current = Date.now();
+  }, []);
+
+  useEffect(() => {
     if (enquiry) setSent(false);
     setErrors((e) => ({ ...e, type: undefined }));
   }, [enquiry]);
 
+  useEffect(() => {
+    if (!prefill) return;
+    setSent(false);
+    setForm((f) => ({ ...f, message: prefill.message }));
+    setErrors((e) => ({ ...e, message: undefined }));
+  }, [prefill]);
+
   const update = <K extends keyof FormState>(k: K, v: FormState[K]) => {
     setForm((f) => ({ ...f, [k]: v }));
     setErrors((e) => ({ ...e, [k]: undefined }));
+  };
+
+  const clearFile = () => {
+    setFile(null);
+    setErrors((e) => ({ ...e, file: undefined }));
+    if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const onFile = (e: ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0] ?? null;
+    setErrors((x) => ({ ...x, file: undefined }));
+    if (!f) {
+      setFile(null);
+      return;
+    }
+    const err = checkFile(f);
+    if (err) {
+      setFile(null);
+      e.target.value = "";
+      setErrors((x) => ({ ...x, file: err }));
+      return;
+    }
+    setFile(f);
   };
 
   const validate = (): Errors => {
@@ -95,41 +152,75 @@ export default function Contact() {
     if (companyRequired && !form.company.trim()) E.company = "Enter your company name for this enquiry type.";
     if (!EMAIL_RE.test(form.email.trim())) E.email = "Enter an email address in the format name@example.com.";
     if (form.phone.trim() && !PHONE_RE.test(form.phone.trim())) E.phone = "Enter a phone number with country code, for example +91 98765 43210.";
+    if (form.website.trim() && !URL_RE.test(form.website.trim())) E.website = "Enter a website address, for example example.com.";
     if (!form.country.trim()) E.country = "Enter your country.";
     if (form.message.trim().length < 10) E.message = "Write a message of at least 10 characters.";
+    if (file) {
+      const fe = checkFile(file);
+      if (fe) E.file = fe;
+    }
     if (!form.consent) E.consent = "Confirm you have read the Privacy Policy.";
     return E;
   };
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const focusFirst = (E: Errors) => {
+    const first = ORDER.find((k) => E[k]);
+    if (first) window.setTimeout(() => document.getElementById(`f-${first}`)?.focus(), 0);
+  };
+
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setServerError("");
     const E = validate();
     if (Object.keys(E).length > 0) {
       setErrors(E);
-      const first = ORDER.find((k) => E[k]);
-      if (first) window.setTimeout(() => document.getElementById(`f-${first}`)?.focus(), 0);
+      focusFirst(E);
       return;
     }
+
     setSending(true);
-    // Replace with a real API call (e.g. POST /api/enquiries) when the backend is ready.
-    window.setTimeout(() => {
-      setSending(false);
+    try {
+      const body = new FormData();
+      body.append("type", enquiry);
+      (Object.keys(form) as (keyof FormState)[]).forEach((k) => body.append(k, String(form[k]).trim()));
+      if (file) body.append("attachment", file);
+      body.append("fax", trapRef.current?.value ?? "");
+      body.append("t", String(startedAt.current));
+
+      const res = await fetch("/api/enquiries", { method: "POST", body });
+      const data: { message?: string; errors?: Errors } = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        if (data.errors) {
+          setErrors(data.errors);
+          focusFirst(data.errors);
+        }
+        setServerError(data.message || "Something went wrong. Please try again.");
+        return;
+      }
       setSent(true);
-    }, 1000);
+    } catch {
+      setServerError("We couldn’t reach the server. Check your connection and try again.");
+    } finally {
+      setSending(false);
+    }
   };
 
   const reset = () => {
     setForm(EMPTY);
     setErrors({});
+    setServerError("");
     setSent(false);
     setEnquiry("");
+    clearFile();
+    startedAt.current = Date.now();
   };
 
   const describedBy = (k: FieldKey) => (errors[k] ? `f-${k}-err` : undefined);
 
   return (
     <section id="contact" aria-labelledby="ct-h" className="px-3 py-3 sm:px-4">
-      <div className="mx-auto max-w-[1400px] rounded-[28px] bg-mist py-20 md:py-28">
+      <div className="mx-auto max-w-[1400px] rounded-[24px] bg-mist py-16 sm:rounded-[28px] md:py-28">
         <div className="container-x grid gap-12 lg:grid-cols-12 lg:gap-14">
           <Reveal className="lg:col-span-5">
             <SectionHeading
@@ -175,7 +266,7 @@ export default function Contact() {
           </Reveal>
 
           <Reveal delay={0.1} className="lg:col-span-7">
-            <div className="rounded-[24px] border border-rule bg-white p-6 shadow-[0_30px_70px_-40px_rgba(10,31,68,.45)] md:p-10">
+            <div className="rounded-[24px] border border-rule bg-white p-5 shadow-[0_30px_70px_-40px_rgba(10,31,68,.45)] sm:p-6 md:p-10">
               <AnimatePresence mode="wait">
                 {sent ? (
                   <motion.div
@@ -212,6 +303,26 @@ export default function Contact() {
                   </motion.div>
                 ) : (
                   <motion.form key="form" noValidate onSubmit={onSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-5">
+                    {/* Spam trap: hidden from people, filled by bots */}
+                    <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+                      <label htmlFor="f-fax">Fax</label>
+                      <input ref={trapRef} id="f-fax" name="fax" type="text" tabIndex={-1} autoComplete="off" />
+                    </div>
+
+                    <AnimatePresence>
+                      {serverError && (
+                        <motion.p
+                          role="alert"
+                          initial={{ opacity: 0, y: -6 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0 }}
+                          className="rounded-xl border border-[#F4C7C3] bg-[#FEF3F2] px-4 py-3 text-[14px] text-[#B42318]"
+                        >
+                          {serverError}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
+
                     <Field id="f-type" label="Enquiry type" error={errors.type}>
                       <select
                         id="f-type"
@@ -230,21 +341,27 @@ export default function Contact() {
 
                     <div className="grid gap-5 sm:grid-cols-2">
                       <Field id="f-name" label="Full name" error={errors.name}>
-                        <input id="f-name" value={form.name} onChange={(e) => update("name", e.target.value)} autoComplete="name" aria-invalid={!!errors.name} aria-describedby={describedBy("name")} className={clsx(control(errors.name), "h-12")} />
+                        <input id="f-name" value={form.name} onChange={(e) => update("name", e.target.value)} autoComplete="name" maxLength={120} aria-invalid={!!errors.name} aria-describedby={describedBy("name")} className={clsx(control(errors.name), "h-12")} />
                       </Field>
                       <Field id="f-company" label="Company" optional={!companyRequired} error={errors.company}>
-                        <input id="f-company" value={form.company} onChange={(e) => update("company", e.target.value)} autoComplete="organization" aria-invalid={!!errors.company} aria-describedby={describedBy("company")} className={clsx(control(errors.company), "h-12")} />
+                        <input id="f-company" value={form.company} onChange={(e) => update("company", e.target.value)} autoComplete="organization" maxLength={160} aria-invalid={!!errors.company} aria-describedby={describedBy("company")} className={clsx(control(errors.company), "h-12")} />
+                      </Field>
+                      <Field id="f-role" label="Role" optional error={errors.role}>
+                        <input id="f-role" value={form.role} onChange={(e) => update("role", e.target.value)} autoComplete="organization-title" maxLength={120} aria-invalid={!!errors.role} aria-describedby={describedBy("role")} className={clsx(control(errors.role), "h-12")} />
                       </Field>
                       <Field id="f-email" label="Email" error={errors.email}>
-                        <input id="f-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" aria-invalid={!!errors.email} aria-describedby={describedBy("email")} className={clsx(control(errors.email), "h-12")} />
+                        <input id="f-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" maxLength={200} aria-invalid={!!errors.email} aria-describedby={describedBy("email")} className={clsx(control(errors.email), "h-12")} />
                       </Field>
                       <Field id="f-phone" label="Phone" optional error={errors.phone}>
-                        <input id="f-phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" placeholder="+91" aria-invalid={!!errors.phone} aria-describedby={describedBy("phone")} className={clsx(control(errors.phone), "h-12")} />
+                        <input id="f-phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" placeholder="+91" maxLength={30} aria-invalid={!!errors.phone} aria-describedby={describedBy("phone")} className={clsx(control(errors.phone), "h-12")} />
+                      </Field>
+                      <Field id="f-website" label="Company website" optional error={errors.website}>
+                        <input id="f-website" type="url" inputMode="url" value={form.website} onChange={(e) => update("website", e.target.value)} autoComplete="url" placeholder="example.com" maxLength={200} aria-invalid={!!errors.website} aria-describedby={describedBy("website")} className={clsx(control(errors.website), "h-12")} />
                       </Field>
                     </div>
 
                     <Field id="f-country" label="Country" error={errors.country}>
-                      <input id="f-country" list="country-list" value={form.country} onChange={(e) => update("country", e.target.value)} autoComplete="country-name" aria-invalid={!!errors.country} aria-describedby={describedBy("country")} className={clsx(control(errors.country), "h-12")} />
+                      <input id="f-country" list="country-list" value={form.country} onChange={(e) => update("country", e.target.value)} autoComplete="country-name" maxLength={80} aria-invalid={!!errors.country} aria-describedby={describedBy("country")} className={clsx(control(errors.country), "h-12")} />
                       <datalist id="country-list">
                         {COUNTRIES.map((c) => (
                           <option key={c} value={c} />
@@ -255,6 +372,29 @@ export default function Contact() {
                     <Field id="f-message" label="Message" error={errors.message}>
                       <textarea id="f-message" value={form.message} onChange={(e) => update("message", e.target.value)} maxLength={1500} rows={5} aria-invalid={!!errors.message} aria-describedby={describedBy("message")} className={clsx(control(errors.message), "resize-y py-3 leading-relaxed")} />
                       <span className="self-end text-xs text-muted">{form.message.length}/1500</span>
+                    </Field>
+
+                    <Field id="f-file" label={isCareers ? "CV / résumé" : "Attachment"} optional error={errors.file}>
+                      <div className={clsx("flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 transition-colors", errors.file ? "border-[#B42318] bg-white" : "border-transparent bg-mist")}>
+                        <input
+                          ref={fileRef}
+                          id="f-file"
+                          type="file"
+                          accept={FILE_ACCEPT}
+                          onChange={onFile}
+                          aria-invalid={!!errors.file}
+                          aria-describedby={["f-file-hint", errors.file ? "f-file-err" : ""].filter(Boolean).join(" ")}
+                          className="min-w-0 flex-1 text-[14.5px] text-body file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-navy file:px-4 file:py-2 file:text-[14px] file:font-medium file:text-white hover:file:bg-navy-soft"
+                        />
+                        {file && (
+                          <button type="button" onClick={clearFile} className="text-[14px] font-medium text-navy underline underline-offset-2">
+                            Remove<span className="sr-only"> {file.name}</span>
+                          </button>
+                        )}
+                      </div>
+                      <p id="f-file-hint" className="text-[13px] text-muted">
+                        {file ? `${file.name} · ${formatSize(file.size)}` : "PDF, DOC or DOCX, up to 4 MB."}
+                      </p>
                     </Field>
 
                     <div className="flex flex-col gap-2">

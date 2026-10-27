@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useScroll, useSpring, type Variants } from "framer-motion";
 import clsx from "clsx";
 import Logo from "@/components/ui/Logo";
@@ -14,9 +14,13 @@ const FLOAT_MAX_WIDTH = 1280; // max width of the floating bar (px)
 const FLOAT_SIDE_GAP = 12; //    gap from screen edges when floating (px)
 const FLOAT_TOP_GAP = 12; //     gap from top when floating (px)
 const FLOAT_RADIUS = 18; //      corner radius when floating (px)
+const UTILITY_HEIGHT = 36; //    utility bar height (px)
+const SCROLL_ON = 16; //         start floating after this scroll (px)
+const SCROLL_OFF = 4; //         stop floating below this (px) – prevents flicker
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const SHAPE_SPRING = { type: "spring" as const, stiffness: 260, damping: 26 };
+/** One shared timing for everything that changes on scroll, so it all moves together. */
+const SHAPE = { duration: 0.5, ease: EASE };
 const BOUNCE = { type: "spring" as const, stiffness: 520, damping: 14 };
 const GLIDE = { type: "spring" as const, stiffness: 480, damping: 22 };
 
@@ -33,6 +37,8 @@ const slide: Variants = {
   center: { opacity: 1, x: 0, transition: { duration: 0.28, ease: EASE } },
   exit: (d: number) => ({ opacity: 0, x: d * -28, transition: { duration: 0.18, ease: EASE } }),
 };
+
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 function Chevron({ open, className }: { open: boolean; className?: string }) {
   return (
@@ -69,31 +75,27 @@ export default function Header() {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const burgerRef = useRef<HTMLButtonElement>(null);
-  const wasOpen = useRef(false);
   const closeTimer = useRef<number | null>(null);
-  const lastY = useRef(0);
   const trap = useFocusTrap(panelRef);
 
   const { scrollY, scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 140, damping: 30, restDelta: 0.001 });
 
-  /* ---------- Viewport width (for the floating bar) ---------- */
-  useEffect(() => {
+  /* ---------- Viewport width (measured before paint → no jump) ---------- */
+  useIsoLayoutEffect(() => {
     const onResize = () => setVw(document.documentElement.clientWidth);
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  /* ---------- Scroll behaviour ---------- */
-  useEffect(() => {
-    lastY.current = window.scrollY;
-    setScrolled(window.scrollY > 12);
+  /* ---------- Scroll behaviour (with hysteresis) ---------- */
+  useIsoLayoutEffect(() => {
+    setScrolled(window.scrollY > SCROLL_ON);
   }, []);
 
   useMotionValueEvent(scrollY, "change", (y) => {
-    setScrolled(y > 12);
-    lastY.current = y;
+    setScrolled((prev) => (prev ? y > SCROLL_OFF : y > SCROLL_ON));
   });
 
   /* ---------- Active section ---------- */
@@ -123,19 +125,30 @@ export default function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
-  /* ---------- Mobile drawer lock & focus ---------- */
+  /* ---------- Close drawer if resized to desktop ---------- */
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-      wasOpen.current = true;
-      const t = window.setTimeout(() => closeRef.current?.focus(), 60);
-      return () => window.clearTimeout(t);
-    }
-    if (wasOpen.current) {
-      document.body.style.overflow = "";
-      wasOpen.current = false;
+    const mq = window.matchMedia("(min-width: 1280px)");
+    const onChange = (e: MediaQueryListEvent) => {
+      if (e.matches) setOpen(false);
+    };
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  /* ---------- Mobile drawer lock & focus (always cleaned up) ---------- */
+  useEffect(() => {
+    if (!open) return;
+    const { body, documentElement } = document;
+    const scrollbar = window.innerWidth - documentElement.clientWidth;
+    body.style.overflow = "hidden";
+    if (scrollbar > 0) body.style.paddingRight = `${scrollbar}px`;
+    const t = window.setTimeout(() => closeRef.current?.focus(), 60);
+    return () => {
+      window.clearTimeout(t);
+      body.style.overflow = "";
+      body.style.paddingRight = "";
       burgerRef.current?.focus();
-    }
+    };
   }, [open]);
 
   useEffect(() => {
@@ -195,7 +208,7 @@ export default function Header() {
       {/* Spacer: keeps page content below the fixed header */}
       <div aria-hidden="true" className="h-[76px] xl:h-[112px]" />
 
-          <motion.header
+      <motion.header
         onMouseEnter={cancelClose}
         onMouseLeave={scheduleClose}
         onBlur={(e) => {
@@ -204,11 +217,11 @@ export default function Header() {
         className="fixed inset-x-0 top-0 z-50"
       >
         {/* ---------- Utility bar (desktop) ---------- */}
-        <div
-          className={clsx(
-            "hidden overflow-hidden bg-navy-deep text-[12.5px] text-white/70 transition-[height] duration-300 ease-out xl:block",
-            scrolled ? "h-0" : "h-9",
-          )}
+        <motion.div
+          initial={false}
+          animate={{ height: scrolled ? 0 : UTILITY_HEIGHT, opacity: scrolled ? 0 : 1 }}
+          transition={SHAPE}
+          className="hidden overflow-hidden bg-navy-deep text-[12.5px] text-white/70 xl:block"
         >
           <div className="container-x flex h-9 items-center justify-between">
             <p className="flex items-center gap-2.5">
@@ -234,23 +247,24 @@ export default function Header() {
               ))}
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* ---------- Main bar (full width → floating rounded) ---------- */}
         <motion.div
           initial={false}
           animate={barShape}
-          transition={SHAPE_SPRING}
+          transition={SHAPE}
+          style={{ maxWidth: "100%" }}
           className={clsx(
-            "relative mx-auto border transition-[background-color,box-shadow,border-color] duration-300",
+            "relative mx-auto border backdrop-blur-xl transition-[background-color,box-shadow,border-color] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
             floating
-              ? "border-rule bg-white/85 shadow-[0_18px_40px_-22px_rgba(10,31,68,.4)] backdrop-blur-xl"
-              : "border-transparent border-b-rule bg-white",
+              ? "border-rule bg-white/85 shadow-[0_18px_40px_-22px_rgba(10,31,68,.4)]"
+              : "border-transparent border-b-rule bg-white shadow-[0_18px_40px_-22px_rgba(10,31,68,0)]",
           )}
         >
           <div
             className={clsx(
-              "mx-auto flex items-center justify-between gap-6 transition-[height,padding] duration-300 ease-out",
+              "mx-auto flex items-center justify-between gap-6 transition-[height,padding] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)]",
               floating ? "h-16 max-w-none px-4 sm:px-6" : "h-[76px] max-w-content px-5 sm:px-8",
             )}
           >
@@ -265,10 +279,11 @@ export default function Header() {
                   const isActive = active === n.href;
                   return (
                     <li key={n.href} className="relative flex h-full items-center">
-                      {/* Sliding highlight (outside the link so it glides smoothly) */}
+                      {/* Sliding highlight – only animates on hover changes, not while the bar resizes */}
                       {hover === n.href && (
                         <motion.span
                           layoutId="nav-hover"
+                          layoutDependency={hover}
                           className="absolute inset-x-0 top-[calc(50%-18px)] h-9 rounded-full bg-navy/[0.07]"
                           transition={GLIDE}
                         />
@@ -301,6 +316,7 @@ export default function Header() {
                       {isActive && (
                         <motion.span
                           layoutId="nav-active"
+                          layoutDependency={active}
                           className="absolute inset-x-3 bottom-0 h-[2px] rounded-full bg-gold"
                           transition={GLIDE}
                         />
@@ -318,7 +334,10 @@ export default function Header() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 transition={BOUNCE}
-                className={clsx("btn btn-primary hidden gap-3 py-2.5 pl-5 pr-2.5 xl:inline-flex", floating && "rounded-full")}
+                className={clsx(
+                  "btn btn-primary hidden gap-3 py-2.5 pl-5 pr-2.5 transition-[border-radius] duration-500 xl:inline-flex",
+                  floating && "rounded-full",
+                )}
               >
                 Partner with SKAD
                 <span aria-hidden="true" className="flex h-7 w-7 items-center justify-center rounded-full bg-white/15 text-sm">
@@ -357,100 +376,105 @@ export default function Header() {
                 exit={{ opacity: 0, y: -8, scale: 0.985 }}
                 transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 style={{ transformOrigin: "top center" }}
-                className={clsx(
-                  "absolute inset-x-0 top-full hidden overflow-hidden bg-white xl:block",
-                  floating
-                    ? "mt-2 rounded-[18px] border border-rule shadow-[0_30px_60px_-30px_rgba(10,31,68,.45)]"
-                    : "border-b border-rule shadow-[0_40px_60px_-40px_rgba(10,31,68,.4)]",
-                )}
+                // pt-2 = invisible hover bridge so the menu doesn't close when moving the mouse into it
+                className={clsx("absolute inset-x-0 top-full hidden xl:block", floating && "pt-2")}
               >
-                <div className="mx-auto max-w-content overflow-hidden px-8 py-10">
-                  <AnimatePresence mode="wait" custom={dir} initial={false}>
-                    <motion.div
-                      key={menu}
-                      custom={dir}
-                      variants={slide}
-                      initial="enter"
-                      animate="center"
-                      exit="exit"
-                      className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] gap-10"
-                    >
-                      {/* Intro */}
-                      <div className="flex flex-col">
-                        <p className="text-[12.5px] font-semibold uppercase tracking-[.14em] text-gold-dark">{panel.label}</p>
-                        <p className="mt-3 font-serif text-[24px] leading-snug text-navy">{panel.intro}</p>
-                        <a href={panel.all} onClick={closeMenu} className="link-arrow mt-6 self-start text-[14px]">
-                          View all <span aria-hidden="true">→</span>
-                        </a>
-                      </div>
-
-                      {/* Links */}
-                      <motion.ul
-                        initial="hidden"
-                        animate="show"
-                        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.035, delayChildren: 0.05 } } }}
-                        className="grid grid-cols-2 content-start gap-x-3 gap-y-1"
-                      >
-                        {panel.links.map((l) => (
-                          <motion.li
-                            key={l.t}
-                            variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 420, damping: 24 } } }}
-                          >
-                            <motion.a
-                              href={l.href}
-                              onClick={closeMenu}
-                              whileHover={{ x: 4 }}
-                              transition={BOUNCE}
-                              className="group/link flex items-start justify-between gap-3 rounded-[10px] px-3.5 py-3 transition-colors duration-200 hover:bg-mist"
-                            >
-                              <span>
-                                <span className="block text-[15px] font-medium text-navy">{l.t}</span>
-                                {l.s && <span className="mt-0.5 block text-[13px] text-muted">{l.s}</span>}
-                              </span>
-                              <span
-                                aria-hidden="true"
-                                className="mt-0.5 -translate-x-1 text-gold-dark opacity-0 transition-all duration-300 group-hover/link:translate-x-0 group-hover/link:opacity-100"
-                              >
-                                →
-                              </span>
-                            </motion.a>
-                          </motion.li>
-                        ))}
-                      </motion.ul>
-
-                      {/* Featured */}
+                <div
+                  className={clsx(
+                    "overflow-hidden bg-white",
+                    floating
+                      ? "rounded-[18px] border border-rule shadow-[0_30px_60px_-30px_rgba(10,31,68,.45)]"
+                      : "border-b border-rule shadow-[0_40px_60px_-40px_rgba(10,31,68,.4)]",
+                  )}
+                >
+                  <div className="mx-auto max-w-content overflow-hidden px-8 py-10">
+                    <AnimatePresence mode="wait" custom={dir} initial={false}>
                       <motion.div
-                        whileHover={{ y: -4 }}
-                        transition={BOUNCE}
-                        className="group/feat relative flex flex-col justify-between gap-8 overflow-hidden rounded-[12px] bg-navy p-6 text-white"
+                        key={menu}
+                        custom={dir}
+                        variants={slide}
+                        initial="enter"
+                        animate="center"
+                        exit="exit"
+                        className="grid grid-cols-[minmax(0,1fr)_minmax(0,2fr)_minmax(0,1fr)] gap-10"
                       >
-                        <span aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-gold/20 transition-transform duration-500 group-hover/feat:scale-110" />
-                        <span aria-hidden="true" className="absolute -right-4 -top-4 h-20 w-20 rounded-full border border-gold/30 transition-transform duration-500 group-hover/feat:scale-125" />
-                        <div className="relative">
-                          <p className="text-[12px] font-semibold uppercase tracking-[.14em] text-gold">Featured</p>
-                          <p className="mt-3 font-serif text-[21px] leading-snug">{panel.featured.title}</p>
-                        </div>
-                        {panel.featured.route ? (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              closeMenu();
-                              startRoute(panel.featured.route ?? "General");
-                            }}
-                            className="relative inline-flex items-center gap-2 self-start text-[14px] font-medium text-white"
-                          >
-                            Get started
-                            <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">→</span>
-                          </button>
-                        ) : (
-                          <a href={panel.featured.href} onClick={closeMenu} className="relative inline-flex items-center gap-2 self-start text-[14px] font-medium text-white">
-                            Explore
-                            <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">→</span>
+                        {/* Intro */}
+                        <div className="flex flex-col">
+                          <p className="text-[12.5px] font-semibold uppercase tracking-[.14em] text-gold-dark">{panel.label}</p>
+                          <p className="mt-3 font-serif text-[24px] leading-snug text-navy">{panel.intro}</p>
+                          <a href={panel.all} onClick={closeMenu} className="link-arrow mt-6 self-start text-[14px]">
+                            View all <span aria-hidden="true">→</span>
                           </a>
-                        )}
+                        </div>
+
+                        {/* Links */}
+                        <motion.ul
+                          initial="hidden"
+                          animate="show"
+                          variants={{ hidden: {}, show: { transition: { staggerChildren: 0.035, delayChildren: 0.05 } } }}
+                          className="grid grid-cols-2 content-start gap-x-3 gap-y-1"
+                        >
+                          {panel.links.map((l) => (
+                            <motion.li
+                              key={`${l.href}-${l.t}`}
+                              variants={{ hidden: { opacity: 0, y: 8 }, show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 420, damping: 24 } } }}
+                            >
+                              <motion.a
+                                href={l.href}
+                                onClick={closeMenu}
+                                whileHover={{ x: 4 }}
+                                transition={BOUNCE}
+                                className="group/link flex items-start justify-between gap-3 rounded-[10px] px-3.5 py-3 transition-colors duration-200 hover:bg-mist"
+                              >
+                                <span>
+                                  <span className="block text-[15px] font-medium text-navy">{l.t}</span>
+                                  {l.s && <span className="mt-0.5 block text-[13px] text-muted">{l.s}</span>}
+                                </span>
+                                <span
+                                  aria-hidden="true"
+                                  className="mt-0.5 -translate-x-1 text-gold-dark opacity-0 transition-all duration-300 group-hover/link:translate-x-0 group-hover/link:opacity-100"
+                                >
+                                  →
+                                </span>
+                              </motion.a>
+                            </motion.li>
+                          ))}
+                        </motion.ul>
+
+                        {/* Featured */}
+                        <motion.div
+                          whileHover={{ y: -4 }}
+                          transition={BOUNCE}
+                          className="group/feat relative flex flex-col justify-between gap-8 overflow-hidden rounded-[12px] bg-navy p-6 text-white"
+                        >
+                          <span aria-hidden="true" className="absolute -right-10 -top-10 h-32 w-32 rounded-full border border-gold/20 transition-transform duration-500 group-hover/feat:scale-110" />
+                          <span aria-hidden="true" className="absolute -right-4 -top-4 h-20 w-20 rounded-full border border-gold/30 transition-transform duration-500 group-hover/feat:scale-125" />
+                          <div className="relative">
+                            <p className="text-[12px] font-semibold uppercase tracking-[.14em] text-gold">Featured</p>
+                            <p className="mt-3 font-serif text-[21px] leading-snug">{panel.featured.title}</p>
+                          </div>
+                          {panel.featured.route ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                closeMenu();
+                                startRoute(panel.featured.route ?? "General");
+                              }}
+                              className="relative inline-flex items-center gap-2 self-start text-[14px] font-medium text-white"
+                            >
+                              Get started
+                              <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">→</span>
+                            </button>
+                          ) : (
+                            <a href={panel.featured.href} onClick={closeMenu} className="relative inline-flex items-center gap-2 self-start text-[14px] font-medium text-white">
+                              Explore
+                              <span aria-hidden="true" className="transition-transform duration-300 group-hover/feat:translate-x-1">→</span>
+                            </a>
+                          )}
+                        </motion.div>
                       </motion.div>
-                    </motion.div>
-                  </AnimatePresence>
+                    </AnimatePresence>
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -537,7 +561,7 @@ export default function Header() {
                                   <div className="flex flex-col pb-4">
                                     {[{ t: "Overview", href: n.href }, ...sub].map((l) => (
                                       <a
-                                        key={l.t}
+                                        key={`${l.href}-${l.t}`}
                                         href={l.href}
                                         onClick={(e) => {
                                           e.preventDefault();

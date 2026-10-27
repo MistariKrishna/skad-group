@@ -3,6 +3,7 @@
 @tailwind utilities;
 
 html {
+  position: relative; /* framer-motion measures scroll offsets against this */
   scroll-behavior: smooth;
   scroll-padding-top: 96px;
   -webkit-text-size-adjust: 100%;
@@ -12,6 +13,9 @@ body {
 }
 ::selection { background: #0a1f44; color: #fff; }
 :focus-visible { outline: 2px solid #8a6a1f; outline-offset: 3px; }
+/* Sections receive focus after an in-page link; don't outline the whole section */
+[tabindex="-1"]:focus,
+[tabindex="-1"]:focus-visible { outline: none; }
 button { cursor: pointer; }
 
 @layer components {
