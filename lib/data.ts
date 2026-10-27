@@ -111,7 +111,7 @@ export const BRANDS: Brand[] = [
   { key: "rupaari", name: "RUPAARI", category: "Sarees · Indian fashion", tagline: "Sarees and Indian fashion, heritage with a contemporary eye.",
     company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari-logo.svg", image: "", route: "General" },
   { key: "casesuno", name: "CASE SUNO",  badge: "India only", category: "Legal technology", tagline: "Legal technology.",
-    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
+    company: "Part of SKAD GROUP", url: "https://www.casesuno.in/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
   { key: "zemo", name: "ZEMO", category: "New-gen fashion", tagline: "Wear your way. Custom, streetwear and innerwear.",
     company: "Part of SKAD GROUP", url: "", logo: "", image: "", route: "General" },
 ];
