@@ -362,30 +362,6 @@ export const INSIGHTS: Insight[] = [
   // { id: "lab-grown-diamonds", title: "Article title", date: "2026-10-27", category: "Jewellery", author: "Author Name", readingTime: "5 min read", summary: "Two-line summary.", href: "" },
 ];
 
-/* ---------------- Newsroom ---------------- */
-// export const NEWS_CATEGORIES = [
-//   "Company announcement", "New business", "Partnership", "Launch",
-//   "Leadership", "Foundation", "Media coverage",
-// ] as const;
-// export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
-
-// export type NewsItem = {
-//   id: string;
-//   title: string;
-//   date: string;
-//   category: NewsCategory;
-//   summary: string;
-//   entity?: string;
-//   image?: string;
-//   href?: string;
-// };
-
-// export const NEWS: NewsItem[] = [
-//   // { id: "benavi-launch", title: "Announcement title", date: "2026-10-27", category: "Launch", summary: "Two-line approved summary.", entity: "BENAVI", image: "", href: "" },
-// ];
-
-export const MEDIA_KIT = { href: "" };
-
 /* ---------------- Foundation ---------------- */
 export const FOUNDATION = {
   image: "/images/foundation-img.webp",
@@ -441,7 +417,6 @@ export const MEGA: Record<MegaKey, MegaPanel> = {
       ...(MARKETS.length > 0 ? [{ t: "Global markets", s: "Presence and official partners", href: "/markets" }] : []),
       ...(PEOPLE.length > 0 ? [{ t: "People", s: "Founder, leadership and teams", href: "/people" }] : []),
       { t: "Kalla Rudra Foundation", s: "Beyond business", href: "/foundation" },
-      // { t: "Newsroom", s: "Announcements and media", href: "/news" },
       { t: "Careers", s: "Build your future with SKAD", href: "/careers" },
     ],
     featured: { title: "From idea to scale: how SKAD builds", href: "/approach" },

@@ -15,7 +15,6 @@ export const SECTION_TITLES: Record<string, string> = {
   foundation: "Kalla Rudra Foundation",
   ventures: "Future ventures",
   insights: "Insights",
-  news: "Newsroom",
   partners: "Partner with SKAD",
   careers: "Careers",
   contact: "Contact",

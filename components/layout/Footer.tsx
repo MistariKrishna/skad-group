@@ -19,10 +19,9 @@ const PLATFORM_LINKS: L[] = [
   { t: "Capabilities", href: "#capabilities" },
 ];
 const IMPACT_LINKS: L[] = [
-  { t: "Kalla Rudra Foundation", href: "#foundation" },
-  { t: "Insights", href: "#insights" },
-  { t: "Newsroom", href: "#news" },
-  { t: "Careers", href: "#careers" },
+  { t: "Kalla Rudra Foundation", href: "/foundation" },
+  { t: "Insights", href: "/insights" },
+  { t: "Careers", href: "/careers" },
 ];
 const CONNECT_LINKS: L[] = [
   { t: "Partner with SKAD", href: "#partners" },

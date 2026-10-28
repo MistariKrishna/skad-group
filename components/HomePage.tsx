@@ -15,7 +15,6 @@ import People from "@/components/sections/People";
 import Foundation from "@/components/sections/Foundation";
 import Ventures from "@/components/sections/Ventures";
 import Insights from "@/components/sections/Insights";
-import Newsroom from "@/components/sections/Newsroom";
 import Partners from "@/components/sections/Partners";
 import Careers from "@/components/sections/Careers";
 import Contact from "@/components/sections/Contact";
@@ -65,8 +64,7 @@ export default function HomePage() {
         <People />
         <Foundation />
         <Ventures />
-        {/* <Insights /> */}
-        {/* <Newsroom /> */}
+        <Insights />
         <Partners />
         <Careers />
         <Contact />

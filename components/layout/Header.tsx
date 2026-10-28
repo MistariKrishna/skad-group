@@ -26,12 +26,10 @@ const GLIDE = { type: "spring" as const, stiffness: 480, damping: 22 };
 
 const MEGA_ORDER: MegaKey[] = ["group", "companies", "brands", "platforms"];
 const UTILITY = [
-  // { label: "News", href: "#news" },
-  { label: "Careers", href: "#careers" },
-  { label: "Partners", href: "#partners" },
-  { label: "Contact", href: "#contact" },
+  { label: "Careers", href: "/careers" },
+  { label: "Partners", href: "/partners" },
+  { label: "Contact", href: "/contact" },
 ];
-
 const slide: Variants = {
   enter: (d: number) => ({ opacity: 0, x: d * 28 }),
   center: { opacity: 1, x: 0, transition: { duration: 0.28, ease: EASE } },
