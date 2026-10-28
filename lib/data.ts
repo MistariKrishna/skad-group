@@ -72,7 +72,7 @@ export const COMPANIES: Company[] = [
     key: "jewels", name: "SKAD JEWELS INDIA PRIVATE LIMITED", short: "SKAD Jewels",
     sector: "Manufacturing · Diamond trading", location: "India",
     description: "Manufacturing and diamond trading (natural and lab-grown), sourcing, B2B supply and international commerce.",
-    brands: ["BENAVI"], regNo: "", website: "", image: "/images/benavi-img.webp", imageLabel: "Diamond manufacturing photograph", route: "Diamond Trading",
+    brands: ["BENAVI"], regNo: "", website: "https://benavi.in/", image: "/images/benavi-img.webp", imageLabel: "Diamond manufacturing photograph", route: "Diamond Trading",
   },
   {
     key: "luxora", name: "LUXORA GLOW ESSENTIALS PRIVATE LIMITED", short: "Luxora Glow Essentials",
