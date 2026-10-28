@@ -302,7 +302,7 @@ export type Insight = {
   href?: string;
 };
 export const INSIGHTS: Insight[] = [
-  // { id: "lab-grown-diamonds", title: "Article title", date: "2026-10-27", category: "Jewellery", author: "Author Name", readingTime: "5 min read", summary: "Two-line summary.", href: "" },
+  { id: "lab-grown-diamonds", title: "Article title", date: "2026-10-27", category: "Jewellery", author: "Author Name", readingTime: "5 min read", summary: "Two-line summary.", href: "" },
 ];
 
 /* ---------------- Newsroom ---------------- */
@@ -324,14 +324,14 @@ export type NewsItem = {
 };
 
 export const NEWS: NewsItem[] = [
-  // { id: "benavi-launch", title: "Announcement title", date: "2026-10-27", category: "Launch", summary: "Two-line approved summary.", entity: "BENAVI", image: "", href: "" },
+  { id: "benavi-launch", title: "BENAVI IS LIVE NOW", date: "2026-10-27", category: "Launch", summary: "Benavi website is live now.", entity: "BENAVI", image: "/images/benavi-img.webp", href: "https://benavi.in/" },
 ];
 
 export const MEDIA_KIT = { href: "" };
 
 /* ---------------- Foundation ---------------- */
 export const FOUNDATION = {
-  image: "",
+  image: "/images/foundation-img.png",
   imageLabel: "Community programme photograph",
   areas: ["Mission", "Initiatives", "Community", "Programmes", "Volunteers", "Partnerships"],
   summary: "The group’s impact entity, kept separate from its commercial companies and brands.",

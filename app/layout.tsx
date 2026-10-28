@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import { Archivo_Black, Bodoni_Moda, Cormorant_Garamond, DM_Sans, IBM_Plex_Mono, Source_Serif_4 } from "next/font/google";
 import Providers from "@/components/Providers";
+import Preloader from "@/components/ui/Preloader";
+import { PRELOADER_SCRIPT } from "@/lib/preloader";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TITLE, SITE_URL } from "@/lib/site";
 import "./globals.css";
 
@@ -39,15 +41,20 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export const viewport: Viewport = { themeColor: "#0A1F44" };
+export const viewport: Viewport = { themeColor: "#07152F" };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${serif.variable} ${sans.variable} ${mono.variable} ${display.variable} ${bodoni.variable} ${archivo.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PRELOADER_SCRIPT }} />
+      </head>
       <body>
+        <Preloader />
         <Providers>{children}</Providers>
       </body>
     </html>
