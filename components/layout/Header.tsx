@@ -26,7 +26,7 @@ const GLIDE = { type: "spring" as const, stiffness: 480, damping: 22 };
 
 const MEGA_ORDER: MegaKey[] = ["group", "companies", "brands", "platforms"];
 const UTILITY = [
-  { label: "News", href: "#news" },
+  // { label: "News", href: "#news" },
   { label: "Careers", href: "#careers" },
   { label: "Partners", href: "#partners" },
   { label: "Contact", href: "#contact" },

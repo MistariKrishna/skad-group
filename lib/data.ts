@@ -26,14 +26,14 @@ export const HERO = {
 export type MegaKey = "group" | "companies" | "brands" | "platforms";
 
 export const NAV: { label: string; href: string; mega?: MegaKey }[] = [
-  { label: "Group", href: "#about", mega: "group" },
-  { label: "Companies", href: "#companies", mega: "companies" },
-  { label: "Brands", href: "#brands", mega: "brands" },
-  { label: "Platforms & Ventures", href: "#platforms", mega: "platforms" },
-  { label: "Capabilities", href: "#capabilities" },
-  { label: "Impact", href: "#foundation" },
-  { label: "Insights", href: "#insights" },
-  { label: "Contact", href: "#contact" },
+  { label: "Group", href: "/about", mega: "group" },
+  { label: "Companies", href: "/companies", mega: "companies" },
+  { label: "Brands", href: "/brands", mega: "brands" },
+  { label: "Platforms", href: "/platforms", mega: "platforms" },
+  { label: "Capabilities", href: "/capabilities" },
+  { label: "Impact", href: "/foundation" },
+  { label: "Insights", href: "/insights" },
+  { label: "Contact", href: "/contact" },
 ];
 
 /* ---------------- Group facts (from the group structure) ---------------- */
@@ -111,7 +111,7 @@ export const BRANDS: Brand[] = [
   { key: "rupaari", name: "RUPAARI", category: "Sarees · Indian fashion", tagline: "Sarees and Indian fashion, heritage with a contemporary eye.",
     company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari-logo.svg", image: "", route: "General" },
   { key: "casesuno", name: "CASE SUNO",  badge: "India only", category: "Legal technology", tagline: "Legal technology.",
-    company: "Part of SKAD GROUP", url: "https://www.casesuno.in/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
+    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
   { key: "zemo", name: "ZEMO", category: "New-gen fashion", tagline: "Wear your way. Custom, streetwear and innerwear.",
     company: "Part of SKAD GROUP", url: "", logo: "", image: "", route: "General" },
 ];
@@ -168,19 +168,20 @@ export const CAPABILITIES = [
 /* ---------------- Global markets ----------------
    Only list markets that are verified. "presence" = where the group operates,
    "partner" = countries with an official partner.
+   lat/lon place the pin on the map (country centre or a specific city).
    ------------------------------------------------ */
 export type MarketStatus = "presence" | "partner";
 export type Market = {
   key: string;
   country: string;
-  short?: string;
-  code: string;
+  short?: string; //   shorter name for tight spaces
+  code: string; //     shown in the list badge
   status: MarketStatus;
-  note?: string;
+  note?: string; //    e.g. related company or city — verified only
   lat: number;
   lon: number;
   label?: "left" | "right" | "top" | "bottom";
-  hub?: boolean;
+  hub?: boolean; //    connection lines are drawn from the hub
 };
 
 export const MARKET_STATUS: Record<MarketStatus, { label: string; plural: string }> = {
@@ -195,6 +196,8 @@ export const MARKETS: Market[] = [
   { key: "es", country: "Spain", code: "ES", status: "partner", lat: 40.4, lon: -3.7 },
   { key: "vn", country: "Vietnam", code: "VN", status: "partner", lat: 16, lon: 106 },
   { key: "de", country: "Germany", code: "DE", status: "partner", lat: 51.2, lon: 10.4 },
+  // ⚠ Confirm status: "partner" = official partner country, "presence" = SKAD company/office/team there
+  { key: "us", country: "United States", short: "USA", code: "US", status: "presence", lat: 39.8, lon: -98.6 },
 ];
 
 /* ---------------- People (section stays hidden while empty) ---------------- */
@@ -220,7 +223,7 @@ export type Person = {
 
 export const PEOPLE: Person[] = [
   // ⚠ PREVIEW ONLY — replace with approved people before launch
-  { name: "Founder Name", title: "Founder & Chairman", group: "Founder", bio: "Preview biography. Replace with the approved founder biography.", image: "", expertise: ["Diamonds", "Manufacturing", "Brand building"], linkedin: "https://www.linkedin.com/" },
+  { name: "Founder Name", title: "Founder & Chairman", group: "Founder", bio: "Preview biography. Replace with the approved founder biography.", image: "", expertise: ["Diamonds", "Manufacturing", "Brand building"], linkedin: "https://in.linkedin.com/in/suryakirankalla" },
   { name: "Leader One", title: "Managing Director", group: "Leadership", company: "SKAD JEWELS INDIA PRIVATE LIMITED", bio: "Preview biography.", image: "", expertise: ["Operations"] },
   { name: "Leader Two", title: "Head of Technology", group: "Technology", company: "SKAD DIATECH EXPORTS", bio: "Preview biography.", image: "", linkedin: "https://www.linkedin.com/" },
   { name: "Leader Three", title: "Creative Director", group: "Creative", bio: "Preview biography.", image: "" },
@@ -238,7 +241,7 @@ export const CULTURE = [
 
 /* ---------------- Careers ---------------- */
 export const CAREER_AREAS = [
-  "Technology", "AI", "Commerce", "Creative", "Marketing", "Operations",
+  "Technology", "AI", "Commerce", "Creative", "Beauty", "Marketing", "Operations",
   "Finance", "Sales", "Manufacturing", "International Trade", "Internships",
 ] as const;
 export type CareerArea = (typeof CAREER_AREAS)[number];
@@ -252,12 +255,66 @@ export type Job = {
   company?: string;
   summary: string;
   requirements: string[];
-  status: "open" | "closed";
-  applyUrl?: string;
+  status: "open" | "closed"; //  set to "closed" to hide a role without deleting it
+  applyUrl?: string; //          external application link; empty = contact form
 };
 
 export const JOBS: Job[] = [
-  // { id: "frontend-engineer", title: "Frontend Engineer", department: "Technology", location: "Surat, India", type: "Full-time", company: "SKAD DIATECH EXPORTS", summary: "One-line role summary.", requirements: ["Requirement one", "Requirement two"], status: "open" },
+  // ⚠ Confirm location, type and requirements with HR before launch
+  {
+    id: "makeover-artist-luxora",
+    title: "Makeover Artist",
+    department: "Beauty",
+    location: "India", //  ⚠ Confirm city / studio location
+    type: "Full-time",
+    company: "LUXORA GLOW ESSENTIALS PRIVATE LIMITED",
+    summary:
+      "Join the LUXORA GLOW studio team to deliver professional makeup and makeover services for bridal, party and everyday clients.",
+    requirements: [
+      "Professional experience as a makeup or makeover artist",
+      "Skilled in bridal, party and occasion looks",
+      "Strong knowledge of skin types, products and hygiene standards",
+      "A portfolio of previous work",
+      "Friendly, client-focused approach",
+    ],
+    status: "open",
+  },
+  // ⚠ Confirm location, type, company and requirements with HR before launch
+  {
+    id: "frontend-developer",
+    title: "Frontend Developer",
+    department: "Technology",
+    location: "India", //  ⚠ Confirm city / remote
+    type: "Full-time",
+    summary:
+      "Build fast, accessible and polished websites and interfaces for the group’s companies, brands and commerce platforms.",
+    requirements: [
+      "Strong skills in React, Next.js and TypeScript",
+      "Experience with Tailwind CSS and responsive, mobile-first design",
+      "Understanding of web performance, accessibility and SEO",
+      "Comfortable working with Git and design files",
+      "A portfolio or GitHub showing recent work",
+    ],
+    status: "open",
+  },
+  // ⚠ Confirm location, type, company and requirements with HR before launch
+  {
+    id: "full-stack-developer",
+    title: "Full-Stack Developer",
+    department: "Technology",
+    location: "India", //  ⚠ Confirm city / remote
+    type: "Full-time",
+    summary:
+      "Develop and maintain the systems behind our e-commerce, CRM, automation and internal tools, from APIs and databases to the interface.",
+    requirements: [
+      "Experience with Node.js and TypeScript, plus React or Next.js",
+      "Working knowledge of databases (SQL and/or NoSQL) and REST APIs",
+      "Experience with e-commerce platforms or third-party integrations",
+      "Familiarity with cloud hosting and deployment",
+      "Able to own features from planning to release",
+    ],
+    status: "open",
+  },
 ];
 
 /* ---------------- Future ventures (spec §19) ----------------
@@ -302,36 +359,36 @@ export type Insight = {
   href?: string;
 };
 export const INSIGHTS: Insight[] = [
-  { id: "lab-grown-diamonds", title: "Article title", date: "2026-10-27", category: "Jewellery", author: "Author Name", readingTime: "5 min read", summary: "Two-line summary.", href: "" },
+  // { id: "lab-grown-diamonds", title: "Article title", date: "2026-10-27", category: "Jewellery", author: "Author Name", readingTime: "5 min read", summary: "Two-line summary.", href: "" },
 ];
 
 /* ---------------- Newsroom ---------------- */
-export const NEWS_CATEGORIES = [
-  "Company announcement", "New business", "Partnership", "Launch",
-  "Leadership", "Foundation", "Media coverage",
-] as const;
-export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
+// export const NEWS_CATEGORIES = [
+//   "Company announcement", "New business", "Partnership", "Launch",
+//   "Leadership", "Foundation", "Media coverage",
+// ] as const;
+// export type NewsCategory = (typeof NEWS_CATEGORIES)[number];
 
-export type NewsItem = {
-  id: string;
-  title: string;
-  date: string;
-  category: NewsCategory;
-  summary: string;
-  entity?: string;
-  image?: string;
-  href?: string;
-};
+// export type NewsItem = {
+//   id: string;
+//   title: string;
+//   date: string;
+//   category: NewsCategory;
+//   summary: string;
+//   entity?: string;
+//   image?: string;
+//   href?: string;
+// };
 
-export const NEWS: NewsItem[] = [
-  { id: "benavi-launch", title: "BENAVI IS LIVE NOW", date: "2026-10-27", category: "Launch", summary: "Benavi website is live now.", entity: "BENAVI", image: "/images/benavi-img.webp", href: "https://benavi.in/" },
-];
+// export const NEWS: NewsItem[] = [
+//   // { id: "benavi-launch", title: "Announcement title", date: "2026-10-27", category: "Launch", summary: "Two-line approved summary.", entity: "BENAVI", image: "", href: "" },
+// ];
 
 export const MEDIA_KIT = { href: "" };
 
 /* ---------------- Foundation ---------------- */
 export const FOUNDATION = {
-  image: "/images/foundation-img.png",
+  image: "/images/foundation-img.webp",
   imageLabel: "Community programme photograph",
   areas: ["Mission", "Initiatives", "Community", "Programmes", "Volunteers", "Partnerships"],
   summary: "The group’s impact entity, kept separate from its commercial companies and brands.",
@@ -377,43 +434,43 @@ export const MEGA: Record<MegaKey, MegaPanel> = {
     label: "Group",
     intro: "One group bringing together companies, brands, platforms and ventures.",
     links: [
-      { t: "About the group", s: "Who we are", href: "#about" },
-      { t: "How we build", s: "From idea to scale", href: "#approach" },
-      { t: "Industries", s: "Where the group works", href: "#industries" },
-      { t: "SKAD ecosystem", s: "How it all connects", href: "#ecosystem" },
-      ...(MARKETS.length > 0 ? [{ t: "Global markets", s: "Presence and official partners", href: "#markets" }] : []),
-      ...(PEOPLE.length > 0 ? [{ t: "People", s: "Founder, leadership and teams", href: "#people" }] : []),
-      { t: "Kalla Rudra Foundation", s: "Beyond business", href: "#foundation" },
-      { t: "Newsroom", s: "Announcements and media", href: "#news" },
-      { t: "Careers", s: "Build your future with SKAD", href: "#careers" },
+      { t: "About the group", s: "Who we are", href: "/about" },
+      { t: "How we build", s: "From idea to scale", href: "/approach" },
+      { t: "Industries", s: "Where the group works", href: "/industries" },
+      { t: "SKAD ecosystem", s: "How it all connects", href: "/ecosystem" },
+      ...(MARKETS.length > 0 ? [{ t: "Global markets", s: "Presence and official partners", href: "/markets" }] : []),
+      ...(PEOPLE.length > 0 ? [{ t: "People", s: "Founder, leadership and teams", href: "/people" }] : []),
+      { t: "Kalla Rudra Foundation", s: "Beyond business", href: "/foundation" },
+      // { t: "Newsroom", s: "Announcements and media", href: "/news" },
+      { t: "Careers", s: "Build your future with SKAD", href: "/careers" },
     ],
-    featured: { title: "From idea to scale: how SKAD builds", href: "#approach" },
-    all: "#about",
+    featured: { title: "From idea to scale: how SKAD builds", href: "/approach" },
+    all: "/about",
   },
   companies: {
     label: "Companies",
     intro: "The operating companies behind the group.",
-    links: COMPANIES.map((c) => ({ t: c.name, s: c.sector.toLowerCase(), href: "#companies" })),
-    featured: { title: "Work with our companies", href: "#partners" },
-    all: "#companies",
+    links: COMPANIES.map((c) => ({ t: c.name, s: c.sector.toLowerCase(), href: "/companies" })),
+    featured: { title: "Work with our companies", href: "/partners" },
+    all: "/companies",
   },
   brands: {
     label: "Brands",
     intro: "Brands built for their own markets.",
-    links: BRANDS.map((b) => ({ t: b.name, s: b.badge ? `${b.category} · ${b.badge}` : b.category, href: "#brands" })),
-    featured: { title: "Each brand, its own visual language", href: "#brands" },
-    all: "#brands",
+    links: BRANDS.map((b) => ({ t: b.name, s: b.badge ? `${b.category} · ${b.badge}` : b.category, href: "/brands" })),
+    featured: { title: "Each brand, its own visual language", href: "/brands" },
+    all: "/brands",
   },
   platforms: {
     label: "Platforms & Ventures",
     intro: "Building what comes next.",
     links: [
-      ...PLATFORMS.map((p) => ({ t: p.name, s: p.tagline, href: "#platforms" })),
-      { t: "Future ventures", s: "New businesses, brands and markets", href: "#ventures" },
-      { t: "Capabilities", s: "What we bring to every business", href: "#capabilities" },
-      { t: "Work with us", s: "Partners, suppliers and founders", href: "#partners" },
+      ...PLATFORMS.map((p) => ({ t: p.name, s: p.tagline, href: "/platforms" })),
+      { t: "Future ventures", s: "New businesses, brands and markets", href: "/ventures" },
+      { t: "Capabilities", s: "What we bring to every business", href: "/capabilities" },
+      { t: "Work with us", s: "Partners, suppliers and founders", href: "/partners" },
     ],
-    featured: { title: "Submit a business opportunity", href: "#contact", route: "Business Opportunity" },
-    all: "#platforms",
+    featured: { title: "Submit a business opportunity", href: "/contact", route: "Business Opportunity" },
+    all: "/platforms",
   },
 };

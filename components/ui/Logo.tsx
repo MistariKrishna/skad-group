@@ -2,9 +2,17 @@ import Image from "next/image";
 import clsx from "clsx";
 import { SITE } from "@/lib/data";
 
-type Props = { tone?: "dark" | "light"; className?: string };
+type Size = "md" | "lg" | "xl";
+type Props = { tone?: "dark" | "light"; size?: Size; className?: string };
 
-export default function Logo({ tone = "dark", className }: Props) {
+/** Logo heights per size. "lg" is the default (header & footer). */
+const HEIGHTS: Record<Size, string> = {
+  md: "h-9 sm:h-10", //          36px → 40px
+  lg: "h-10 sm:h-[46px]", //     40px → 46px
+  xl: "h-12 sm:h-14", //         48px → 56px
+};
+
+export default function Logo({ tone = "dark", size = "lg", className }: Props) {
   const src = tone === "light" ? SITE.logoLight || SITE.logo : SITE.logo;
 
   // Text fallback if no logo file is set
@@ -12,7 +20,7 @@ export default function Logo({ tone = "dark", className }: Props) {
     return (
       <span
         className={clsx(
-          "font-serif text-[22px] font-semibold tracking-[.08em]",
+          "font-serif text-[24px] font-semibold tracking-[.08em]",
           tone === "light" ? "text-white" : "text-navy",
           className,
         )}
@@ -26,11 +34,13 @@ export default function Logo({ tone = "dark", className }: Props) {
     <Image
       src={src}
       alt="SKAD GROUP"
-      width={180}
-      height={48}
+      width={220}
+      height={60}
       priority={tone === "dark"} // header logo is above the fold
-      className={clsx("h-9 w-auto sm:h-10", className)}
-      style={{ width: "auto" }} // keeps the aspect ratio; removes the Next.js warning
+      unoptimized // SVGs are already sharp at every size; serve the original file
+      draggable={false}
+      className={clsx("block w-auto select-none object-contain", HEIGHTS[size], className)}
+      style={{ width: "auto" }}
     />
   );
 }

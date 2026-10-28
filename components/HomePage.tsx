@@ -65,8 +65,8 @@ export default function HomePage() {
         <People />
         <Foundation />
         <Ventures />
-        <Insights />
-        <Newsroom />
+        {/* <Insights /> */}
+        {/* <Newsroom /> */}
         <Partners />
         <Careers />
         <Contact />

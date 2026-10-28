@@ -226,3 +226,16 @@ button { cursor: pointer; }
   .pl__glint { display: none; }
   .pl__ring { animation: none; }
 }
+/* =====================================================================
+   HEADER — keep menu items and the CTA on one line
+   ===================================================================== */
+header nav[aria-label="Primary"] a {
+  white-space: nowrap;
+}
+header nav[aria-label="Primary"] > ul > li {
+  flex-shrink: 0;
+}
+header .btn {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
