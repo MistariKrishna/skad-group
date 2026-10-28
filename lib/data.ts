@@ -214,19 +214,76 @@ export type Person = {
   name: string;
   title: string;
   group: PeopleGroup;
-  company?: string;
-  bio: string; //          approved biography; use "\n\n" for paragraph breaks
-  image: string; //        "/images/people/name.webp" — empty shows initials
+  company?: string; //     "A · B · C" for several companies
+  bio?: string; //         approved biography (optional); use "\n\n" for paragraph breaks
+  image: string; //        "/images/…" portrait (4:5) — empty shows initials
   expertise?: string[];
   linkedin?: string;
 };
 
 export const PEOPLE: Person[] = [
-  // ⚠ PREVIEW ONLY — replace with approved people before launch
-  { name: "Founder Name", title: "Founder & Chairman", group: "Founder", bio: "Preview biography. Replace with the approved founder biography.", image: "", expertise: ["Diamonds", "Manufacturing", "Brand building"], linkedin: "https://in.linkedin.com/in/suryakirankalla" },
-  { name: "Leader One", title: "Managing Director", group: "Leadership", company: "SKAD JEWELS INDIA PRIVATE LIMITED", bio: "Preview biography.", image: "", expertise: ["Operations"] },
-  { name: "Leader Two", title: "Head of Technology", group: "Technology", company: "SKAD DIATECH EXPORTS", bio: "Preview biography.", image: "", linkedin: "https://www.linkedin.com/" },
-  { name: "Leader Three", title: "Creative Director", group: "Creative", bio: "Preview biography.", image: "" },
+  {
+    name: "Suryakiran Dharmarao Kalla",
+    title: "Founder & Managing Director",
+    group: "Leadership",
+    company: "SKAD Group · SKAD Jewels India Private Limited · SKAD Diatech Exports · DETARA Ltd · Luxora Glow Essentials Private Limited",
+    bio: "Founder and Managing Director of SKAD Group, leading group strategy, entrepreneurship, business development and international expansion across its portfolio.",
+    image: "/images/suryakiran-profile.webp",
+    expertise: ["Group strategy", "Entrepreneurship", "Business development", "International expansion"],
+    linkedin: "https://in.linkedin.com/in/suryakirankalla",
+  },
+  {
+    name: "Thorleif Henning Monsen",
+    title: "Co-Founder & Strategic Director",
+    group: "Leadership",
+    company: "DETARA LTD",
+    bio: "Norwegian entrepreneur and healthcare professional with a background in chiropractic and physiotherapy, bringing Norwegian market knowledge and strategic business experience to DETARA.",
+    image: "/images/thorlief-monsen-profile.webp",
+    expertise: ["Norwegian market", "Business strategy"],
+  },
+  {
+    name: "Ole Vik",
+    title: "Co-Founder & Business Director",
+    group: "Leadership",
+    bio: "Norwegian entrepreneur and business leader with experience in business operations, customer relationships and commercial development in the Norwegian market.",
+    image: "/images/ole-profile.webp",
+    expertise: ["Business operations", "Customer relationships", "Commercial development"],
+  },
+  {
+    name: "Prakash Konda",
+    title: "Director",
+    group: "Leadership",
+    company: "Luxora Glow Essentials Private Limited · CASE SUNO",
+    bio: "Supporting business leadership and development across Luxora Glow Essentials Private Limited and CASE SUNO.",
+    image: "/images/prakash-profile.webp",
+    expertise: ["Business leadership", "Business development"],
+  },
+  {
+    name: "Lucas Truong",
+    title: "Vietnam Business Partner",
+    group: "Leadership",
+    bio: "Focused on the Vietnam market, strategic partnerships and international business development.",
+    image: "/images/lucas-profile.webp",
+    expertise: ["Vietnam market", "Strategic partnerships", "International business development"],
+  },
+  {
+    name: "Darshan Vaghani",
+    title: "Group Business Lead",
+    group: "Leadership",
+    image: "", // e.g. "/images/darshan-profile.webp"
+  },
+  {
+    name: "Ujas Dhameliya",
+    title: "Group Technology Lead",
+    group: "Leadership",
+    image: "", // e.g. "/images/ujas-profile.webp"
+  },
+  {
+    name: "Ramila Buchiya",
+    title: "Business Head, RUPAARI",
+    group: "Business Heads",
+    image: "", // e.g. "/images/ramila-profile.webp"
+  },
 ];
 
 /* ---------------- Culture ---------------- */
