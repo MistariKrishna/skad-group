@@ -5,8 +5,8 @@ export const pad = (n: number): string => String(n).padStart(2, "0");
    Put images in /public/images/ and reference them as "/images/file.jpg".
    ===================================================================== */
 export const SITE = {
-  logo: "/images/skad-group-logo.svg", //       dark version, for white backgrounds
-  logoLight: "/images/skad-group-logo-white.svg", //  for the navy footer
+  logo: "/images/logos/skad-group-logo.svg", //       dark version, for white backgrounds
+  logoLight: "/images/logos/skad-group-logo-white.svg", //  for the navy footer
 };
 
 export const CONTACT_DETAILS = {
@@ -103,15 +103,15 @@ export type Brand = {
 
 export const BRANDS: Brand[] = [
   { key: "detara", name: "DETARA", category: "Fine jewellery", tagline: "Fine Diamond Jewellery & Engagement Rings",
-    company: "Brand of DETARA LTD, London", url: "https://www.detara.store/", logo: "/images/detara-logo.svg", image: "", route: "General" },
+    company: "Brand of DETARA LTD, London", url: "https://www.detara.store/", logo: "/images/logos/detara-logo.svg", image: "", route: "General" },
   { key: "luxora", name: "LUXORA GLOW", category: "Beauty", tagline: "Hair, Skin & Beauty Studio",
-    company: "Brand of LUXORA GLOW ESSENTIALS PRIVATE LIMITED", url: "", logo: "/images/luxora-glow-logo.svg", image: "", route: "General" },
+    company: "Brand of LUXORA GLOW ESSENTIALS PRIVATE LIMITED", url: "", logo: "/images/logos/luxora-glow-logo.svg", image: "", route: "General" },
   { key: "benavi", name: "BENAVI", category: "Silver jewellery", tagline: "Crafting Dreams in Silver: Your Story, Your Jewel.",
-    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "https://benavi.in/", logo: "/images/benavi-logo.svg", image: "", route: "General" },
+    company: "Brand of SKAD JEWELS INDIA PRIVATE LIMITED", badge: "India only", url: "https://benavi.in/", logo: "/images/logos/benavi-logo.svg", image: "", route: "General" },
   { key: "rupaari", name: "RUPAARI", category: "Sarees · Indian fashion", tagline: "Sarees and Indian fashion, heritage with a contemporary eye.",
-    company: "Part of SKAD GROUP", url: "", logo: "/images/rupaari-logo.svg", image: "", route: "General" },
+    company: "Part of SKAD GROUP", url: "", logo: "/images/logos/rupaari-logo.svg", image: "", route: "General" },
   { key: "casesuno", name: "CASE SUNO",  badge: "India only", category: "Legal technology", tagline: "Legal technology.",
-    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/case-suno-logo.svg", image: "", route: "Technology" },
+    company: "Part of SKAD GROUP", url: "https://case-suno.vercel.app/", logo: "/images/logos/case-suno-logo.svg", image: "", route: "Technology" },
   { key: "zemo", name: "ZEMO", category: "New-gen fashion", tagline: "Wear your way. Custom, streetwear and innerwear.",
     company: "Part of SKAD GROUP", url: "", logo: "", image: "", route: "General" },
 ];
@@ -203,11 +203,11 @@ export const MARKETS: Market[] = [
 /* ---------------- People (section stays hidden while empty) ---------------- */
 export type PeopleGroup =
   | "Founder" | "Leadership" | "Management" | "Business Heads"
-  | "Technology" | "Creative" | "Operations" | "Advisors" | "Strategic Experts";
+  | "Technology" | "Creative" | "Operations" | "Advisors" | "Strategic Experts" | "Team";
 
 export const PEOPLE_GROUPS: PeopleGroup[] = [
   "Founder", "Leadership", "Management", "Business Heads",
-  "Technology", "Creative", "Operations", "Advisors", "Strategic Experts",
+  "Technology", "Creative", "Operations", "Advisors", "Strategic Experts", "Team",
 ];
 
 export type Person = {
@@ -228,7 +228,7 @@ export const PEOPLE: Person[] = [
     group: "Leadership",
     company: "SKAD Group · SKAD Jewels India Private Limited · SKAD Diatech Exports · DETARA Ltd · Luxora Glow Essentials Private Limited",
     bio: "Founder and Managing Director of SKAD Group, leading group strategy, entrepreneurship, business development and international expansion across its portfolio.",
-    image: "/images/suryakiran-profile.webp",
+    image: "/images/people/suryakiran-profile.webp",
     expertise: ["Group strategy", "Entrepreneurship", "Business development", "International expansion"],
     linkedin: "https://in.linkedin.com/in/suryakirankalla",
   },
@@ -238,7 +238,7 @@ export const PEOPLE: Person[] = [
     group: "Leadership",
     company: "DETARA LTD",
     bio: "Norwegian entrepreneur and healthcare professional with a background in chiropractic and physiotherapy, bringing Norwegian market knowledge and strategic business experience to DETARA.",
-    image: "/images/thorlief-monsen-profile.webp",
+    image: "/images/people/thorlief-monsen-profile.webp",
     expertise: ["Norwegian market", "Business strategy"],
   },
   {
@@ -246,7 +246,7 @@ export const PEOPLE: Person[] = [
     title: "Co-Founder & Business Director",
     group: "Leadership",
     bio: "Norwegian entrepreneur and business leader with experience in business operations, customer relationships and commercial development in the Norwegian market.",
-    image: "/images/ole-profile.webp",
+    image: "/images/people/ole-profile.webp",
     expertise: ["Business operations", "Customer relationships", "Commercial development"],
   },
   {
@@ -255,7 +255,7 @@ export const PEOPLE: Person[] = [
     group: "Leadership",
     company: "Luxora Glow Essentials Private Limited · CASE SUNO",
     bio: "Supporting business leadership and development across Luxora Glow Essentials Private Limited and CASE SUNO.",
-    image: "/images/prakash-profile.webp",
+    image: "/images/people/prakash-profile.webp",
     expertise: ["Business leadership", "Business development"],
   },
   {
@@ -263,25 +263,25 @@ export const PEOPLE: Person[] = [
     title: "Vietnam Business Partner",
     group: "Leadership",
     bio: "Focused on the Vietnam market, strategic partnerships and international business development.",
-    image: "/images/lucas-profile.webp",
+    image: "/images/people/lucas-profile.webp",
     expertise: ["Vietnam market", "Strategic partnerships", "International business development"],
   },
-  {
+   {
     name: "Darshan Vaghani",
     title: "Group Business Lead",
-    group: "Leadership",
+    group: "Team",
     image: "", // e.g. "/images/darshan-profile.webp"
   },
   {
     name: "Ujas Dhameliya",
     title: "Group Technology Lead",
-    group: "Leadership",
+    group: "Team",
     image: "", // e.g. "/images/ujas-profile.webp"
   },
   {
     name: "Ramila Buchiya",
     title: "Business Head, RUPAARI",
-    group: "Business Heads",
+    group: "Team",
     image: "", // e.g. "/images/ramila-profile.webp"
   },
 ];
