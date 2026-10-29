@@ -33,17 +33,19 @@ const checkFile = (f: File): string | undefined => {
   return undefined;
 };
 
-const formatSize = (bytes: number) => (bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`);
+const formatSize = (bytes: number) =>
+  bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 
+/** 16px text on phones prevents iOS from zooming into fields. */
 const control = (err?: string) =>
   clsx(
-    "w-full rounded-xl border bg-mist px-4 text-[15.5px] text-navy transition-all duration-200 placeholder:text-muted/60 hover:bg-[#EEF0F3] focus:border-navy focus:bg-white focus:outline-none focus:ring-4 focus:ring-navy/10",
+    "w-full rounded-xl border bg-mist px-4 text-[16px] text-navy transition-all duration-200 placeholder:text-muted/60 hover:bg-[#EEF0F3] focus:border-navy focus:bg-white focus:outline-none focus:ring-4 focus:ring-navy/10 sm:text-[15.5px]",
     err ? "border-[#B42318] bg-white" : "border-transparent",
   );
 
 function Field({ id, label, optional, error, children }: { id: string; label: string; optional?: boolean; error?: string; children: ReactNode }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex min-w-0 flex-col gap-2">
       <label htmlFor={id} className="text-sm font-medium text-navy">
         {label} {optional && <span className="font-normal text-muted">(optional)</span>}
       </label>
@@ -56,7 +58,7 @@ function Field({ id, label, optional, error, children }: { id: string; label: st
             initial={{ opacity: 0, y: -4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="text-[13px] text-[#B42318]"
+            className="text-[13px] leading-snug text-[#B42318]"
           >
             {error}
           </motion.p>
@@ -68,7 +70,7 @@ function Field({ id, label, optional, error, children }: { id: string; label: st
 
 function DetailIcon({ kind }: { kind: "pin" | "mail" | "phone" | "clock" }) {
   return (
-    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-navy text-gold">
+    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy text-gold sm:h-11 sm:w-11">
       <svg aria-hidden="true" viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
         {kind === "pin" && <><path d="M12 21s-7-6.2-7-11.5a7 7 0 0114 0C19 14.8 12 21 12 21z" /><circle cx="12" cy="9.5" r="2.5" /></>}
         {kind === "mail" && <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M3 7l9 6 9-6" /></>}
@@ -76,6 +78,22 @@ function DetailIcon({ kind }: { kind: "pin" | "mail" | "phone" | "clock" }) {
         {kind === "clock" && <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></>}
       </svg>
     </span>
+  );
+}
+
+function Chevron() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 12 12" className="pointer-events-none absolute right-4 top-1/2 h-3 w-3 -translate-y-1/2 text-muted" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 4.5L6 7.5L9 4.5" />
+    </svg>
+  );
+}
+
+function PaperclipIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M21 11.5l-8.6 8.6a5 5 0 01-7-7l8.6-8.6a3.3 3.3 0 014.7 4.7l-8.6 8.6a1.7 1.7 0 01-2.4-2.4l8-8" />
+    </svg>
   );
 }
 
@@ -97,7 +115,7 @@ export default function Contact() {
 
   const details: { kind: "pin" | "mail" | "phone" | "clock"; label: string; content: ReactNode }[] = [];
   if (address.length > 0) details.push({ kind: "pin", label: "Address", content: address.map((l) => <span key={l} className="block">{l}</span>) });
-  if (email) details.push({ kind: "mail", label: "Email", content: <a href={`mailto:${email}`} className="hover:underline">{email}</a> });
+  if (email) details.push({ kind: "mail", label: "Email", content: <a href={`mailto:${email}`} className="break-all hover:underline">{email}</a> });
   if (phone) details.push({ kind: "phone", label: "Phone", content: <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:underline">{phone}</a> });
   if (hours) details.push({ kind: "clock", label: "Hours", content: hours });
 
@@ -220,53 +238,25 @@ export default function Contact() {
 
   return (
     <section id="contact" aria-labelledby="ct-h" className="px-3 py-3 sm:px-4">
-      <div className="mx-auto max-w-[1400px] rounded-[24px] bg-mist py-16 sm:rounded-[28px] md:py-28">
-        <div className="container-x grid gap-12 lg:grid-cols-12 lg:gap-14">
-          <Reveal className="lg:col-span-5">
+      <div className="mx-auto max-w-[1400px] rounded-[24px] bg-mist py-14 sm:rounded-[28px] sm:py-20 md:py-28">
+        {/*
+          Phones: heading → form → contact details.
+          Desktop: heading + details on the left, form on the right.
+        */}
+        <div className="container-x grid gap-10 lg:grid-cols-12 lg:gap-x-14 lg:gap-y-10">
+          {/* Heading */}
+          <Reveal className="lg:col-span-5 lg:row-start-1">
             <SectionHeading
               id="ct-h"
               eyebrow="Contact"
               title="Let’s build something meaningful"
               intro="Choose an enquiry type and your message will be routed to the right team across the group."
             />
-
-            {details.length > 0 && (
-              <ul className="mt-10 space-y-3">
-                {details.map((d) => (
-                  <motion.li
-                    key={d.label}
-                    whileHover={{ x: 4 }}
-                    transition={BOUNCE}
-                    className="flex items-start gap-4 rounded-2xl border border-rule bg-white p-4"
-                  >
-                    <DetailIcon kind={d.kind} />
-                    <div className="text-[15px] leading-relaxed">
-                      <p className="text-[12px] font-semibold uppercase tracking-[.1em] text-muted">{d.label}</p>
-                      <div className="mt-0.5 text-navy">{d.content}</div>
-                    </div>
-                  </motion.li>
-                ))}
-              </ul>
-            )}
-
-            <div className="mt-6 rounded-2xl border border-rule bg-white p-5">
-              <p className="text-[12px] font-semibold uppercase tracking-[.1em] text-muted">Group companies</p>
-              <ul className="mt-3 space-y-2 text-[14.5px] text-navy">
-                {COMPANIES.map((c) => (
-                  <li key={c.key} className="flex items-start gap-2.5">
-                    <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
-                    <span>
-                      {c.name}
-                      {c.location ? <span className="text-muted"> · {c.location}</span> : null}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </Reveal>
 
-          <Reveal delay={0.1} className="lg:col-span-7">
-            <div className="rounded-[24px] border border-rule bg-white p-5 shadow-[0_30px_70px_-40px_rgba(10,31,68,.45)] sm:p-6 md:p-10">
+          {/* Form */}
+          <Reveal delay={0.1} className="min-w-0 lg:col-span-7 lg:col-start-6 lg:row-span-2 lg:row-start-1">
+            <div className="rounded-[20px] border border-rule bg-white p-5 shadow-[0_30px_70px_-40px_rgba(10,31,68,.45)] sm:rounded-[24px] sm:p-8 md:p-10">
               <AnimatePresence mode="wait">
                 {sent ? (
                   <motion.div
@@ -275,7 +265,7 @@ export default function Contact() {
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="flex min-h-[460px] flex-col justify-center"
+                    className="flex min-h-[380px] flex-col justify-center sm:min-h-[460px]"
                   >
                     <motion.span
                       aria-hidden="true"
@@ -286,8 +276,10 @@ export default function Contact() {
                     >
                       ✓
                     </motion.span>
-                    <h3 className="mt-6 font-serif text-[30px] font-medium leading-tight text-navy">Thank you. Your enquiry has been received.</h3>
-                    <p className="mt-3 text-[16px] leading-relaxed">
+                    <h3 className="mt-6 font-serif text-[26px] font-medium leading-tight text-navy sm:text-[30px]">
+                      Thank you. Your enquiry has been received.
+                    </h3>
+                    <p className="mt-3 break-words text-[16px] leading-relaxed">
                       Your <strong className="font-semibold text-navy">{enquiry}</strong> enquiry has been routed to the right team. A member of the team will reply to {form.email}.
                     </p>
                     <motion.button
@@ -296,15 +288,23 @@ export default function Contact() {
                       whileHover={{ scale: 1.04 }}
                       whileTap={{ scale: 0.96 }}
                       transition={BOUNCE}
-                      className="mt-8 self-start rounded-full border border-navy/15 bg-white px-6 py-3.5 text-[15px] font-medium text-navy transition-colors hover:border-navy/40"
+                      className="mt-8 w-full rounded-full border border-navy/15 bg-white px-6 py-3.5 text-[15px] font-medium text-navy transition-colors hover:border-navy/40 sm:w-auto sm:self-start"
                     >
                       Send another enquiry
                     </motion.button>
                   </motion.div>
                 ) : (
-                  <motion.form key="form" noValidate onSubmit={onSubmit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex flex-col gap-5">
+                  <motion.form
+                    key="form"
+                    noValidate
+                    onSubmit={onSubmit}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="relative flex flex-col gap-5"
+                  >
                     {/* Spam trap: hidden from people, filled by bots */}
-                    <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+                    <div aria-hidden="true" className="absolute left-0 top-0 h-px w-px overflow-hidden opacity-0">
                       <label htmlFor="f-fax">Fax</label>
                       <input ref={trapRef} id="f-fax" name="fax" type="text" tabIndex={-1} autoComplete="off" />
                     </div>
@@ -324,19 +324,22 @@ export default function Contact() {
                     </AnimatePresence>
 
                     <Field id="f-type" label="Enquiry type" error={errors.type}>
-                      <select
-                        id="f-type"
-                        value={enquiry}
-                        onChange={(e) => setEnquiry(e.target.value)}
-                        aria-invalid={!!errors.type}
-                        aria-describedby={describedBy("type")}
-                        className={clsx(control(errors.type), "h-12 cursor-pointer")}
-                      >
-                        <option value="" disabled>Select an enquiry type</option>
-                        {ENQUIRY_TYPES.map((t) => (
-                          <option key={t} value={t}>{t}</option>
-                        ))}
-                      </select>
+                      <div className="relative">
+                        <select
+                          id="f-type"
+                          value={enquiry}
+                          onChange={(e) => setEnquiry(e.target.value)}
+                          aria-invalid={!!errors.type}
+                          aria-describedby={describedBy("type")}
+                          className={clsx(control(errors.type), "h-12 cursor-pointer appearance-none pr-10")}
+                        >
+                          <option value="" disabled>Select an enquiry type</option>
+                          {ENQUIRY_TYPES.map((t) => (
+                            <option key={t} value={t}>{t}</option>
+                          ))}
+                        </select>
+                        <Chevron />
+                      </div>
                     </Field>
 
                     <div className="grid gap-5 sm:grid-cols-2">
@@ -350,10 +353,10 @@ export default function Contact() {
                         <input id="f-role" value={form.role} onChange={(e) => update("role", e.target.value)} autoComplete="organization-title" maxLength={120} aria-invalid={!!errors.role} aria-describedby={describedBy("role")} className={clsx(control(errors.role), "h-12")} />
                       </Field>
                       <Field id="f-email" label="Email" error={errors.email}>
-                        <input id="f-email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" maxLength={200} aria-invalid={!!errors.email} aria-describedby={describedBy("email")} className={clsx(control(errors.email), "h-12")} />
+                        <input id="f-email" type="email" inputMode="email" value={form.email} onChange={(e) => update("email", e.target.value)} autoComplete="email" maxLength={200} aria-invalid={!!errors.email} aria-describedby={describedBy("email")} className={clsx(control(errors.email), "h-12")} />
                       </Field>
                       <Field id="f-phone" label="Phone" optional error={errors.phone}>
-                        <input id="f-phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" placeholder="+91" maxLength={30} aria-invalid={!!errors.phone} aria-describedby={describedBy("phone")} className={clsx(control(errors.phone), "h-12")} />
+                        <input id="f-phone" type="tel" inputMode="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} autoComplete="tel" placeholder="+91" maxLength={30} aria-invalid={!!errors.phone} aria-describedby={describedBy("phone")} className={clsx(control(errors.phone), "h-12")} />
                       </Field>
                       <Field id="f-website" label="Company website" optional error={errors.website}>
                         <input id="f-website" type="url" inputMode="url" value={form.website} onChange={(e) => update("website", e.target.value)} autoComplete="url" placeholder="example.com" maxLength={200} aria-invalid={!!errors.website} aria-describedby={describedBy("website")} className={clsx(control(errors.website), "h-12")} />
@@ -370,12 +373,18 @@ export default function Contact() {
                     </Field>
 
                     <Field id="f-message" label="Message" error={errors.message}>
-                      <textarea id="f-message" value={form.message} onChange={(e) => update("message", e.target.value)} maxLength={1500} rows={5} aria-invalid={!!errors.message} aria-describedby={describedBy("message")} className={clsx(control(errors.message), "resize-y py-3 leading-relaxed")} />
+                      <textarea id="f-message" value={form.message} onChange={(e) => update("message", e.target.value)} maxLength={1500} rows={5} aria-invalid={!!errors.message} aria-describedby={describedBy("message")} className={clsx(control(errors.message), "min-h-[140px] resize-y py-3 leading-relaxed")} />
                       <span className="self-end text-xs text-muted">{form.message.length}/1500</span>
                     </Field>
 
+                    {/* Attachment — custom control (the browser's default overflows on phones) */}
                     <Field id="f-file" label={isCareers ? "CV / résumé" : "Attachment"} optional error={errors.file}>
-                      <div className={clsx("flex flex-wrap items-center gap-3 rounded-xl border px-4 py-3 transition-colors", errors.file ? "border-[#B42318] bg-white" : "border-transparent bg-mist")}>
+                      <div
+                        className={clsx(
+                          "flex min-w-0 items-center gap-3 rounded-xl border p-2 transition-colors",
+                          errors.file ? "border-[#B42318] bg-white" : "border-transparent bg-mist",
+                        )}
+                      >
                         <input
                           ref={fileRef}
                           id="f-file"
@@ -384,39 +393,103 @@ export default function Contact() {
                           onChange={onFile}
                           aria-invalid={!!errors.file}
                           aria-describedby={["f-file-hint", errors.file ? "f-file-err" : ""].filter(Boolean).join(" ")}
-                          className="min-w-0 flex-1 text-[14.5px] text-body file:mr-4 file:cursor-pointer file:rounded-full file:border-0 file:bg-navy file:px-4 file:py-2 file:text-[14px] file:font-medium file:text-white hover:file:bg-navy-soft"
+                          className="peer sr-only"
                         />
+                        <label
+                          htmlFor="f-file"
+                          className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-lg bg-navy px-3.5 py-2.5 text-[14px] font-medium text-white transition-colors hover:bg-navy-soft peer-focus-visible:ring-4 peer-focus-visible:ring-navy/25"
+                        >
+                          <PaperclipIcon />
+                          {file ? "Change" : "Choose file"}
+                        </label>
+                        <span className={clsx("min-w-0 flex-1 truncate text-[14px]", file ? "text-navy" : "text-muted")}>
+                          {file ? file.name : "No file chosen"}
+                        </span>
                         {file && (
-                          <button type="button" onClick={clearFile} className="text-[14px] font-medium text-navy underline underline-offset-2">
-                            Remove<span className="sr-only"> {file.name}</span>
+                          <button
+                            type="button"
+                            onClick={clearFile}
+                            aria-label={`Remove ${file.name}`}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xl leading-none text-muted transition-colors hover:bg-white hover:text-navy"
+                          >
+                            ×
                           </button>
                         )}
                       </div>
                       <p id="f-file-hint" className="text-[13px] text-muted">
-                        {file ? `${file.name} · ${formatSize(file.size)}` : "PDF, DOC or DOCX, up to 4 MB."}
+                        {file ? `${formatSize(file.size)} · PDF, DOC or DOCX, up to 4 MB` : "PDF, DOC or DOCX, up to 4 MB."}
                       </p>
                     </Field>
 
                     <div className="flex flex-col gap-2">
                       <label htmlFor="f-consent" className="flex cursor-pointer items-start gap-3 rounded-xl bg-mist p-4 text-[14.5px] leading-relaxed">
-                        <input id="f-consent" type="checkbox" checked={form.consent} onChange={(e) => update("consent", e.target.checked)} aria-invalid={!!errors.consent} aria-describedby={describedBy("consent")} className="mt-1 h-[18px] w-[18px] shrink-0 accent-navy" />
+                        <input
+                          id="f-consent"
+                          type="checkbox"
+                          checked={form.consent}
+                          onChange={(e) => update("consent", e.target.checked)}
+                          aria-invalid={!!errors.consent}
+                          aria-describedby={describedBy("consent")}
+                          className="mt-1 h-[18px] w-[18px] shrink-0 accent-navy"
+                        />
                         <span>
                           I have read the{" "}
                           <a href="/legal/privacy" target="_blank" rel="noopener noreferrer" className="font-medium text-navy underline underline-offset-2">Privacy Policy</a>{" "}
                           and consent to SKAD GROUP processing this enquiry.
                         </span>
                       </label>
-                      {errors.consent && <p id="f-consent-err" role="alert" className="text-[13px] text-[#B42318]">{errors.consent}</p>}
+                      {errors.consent && (
+                        <p id="f-consent-err" role="alert" className="text-[13px] text-[#B42318]">
+                          {errors.consent}
+                        </p>
+                      )}
                     </div>
 
-                    <div className="mt-2">
-                      <PillSubmit disabled={sending} arrow={!sending}>
+                    <div className="mt-1">
+                      <PillSubmit disabled={sending} arrow={!sending} className="w-full sm:w-auto">
                         {sending ? "Sending…" : "Send enquiry"}
                       </PillSubmit>
                     </div>
                   </motion.form>
                 )}
               </AnimatePresence>
+            </div>
+          </Reveal>
+
+          {/* Contact details + group companies */}
+          <Reveal delay={0.05} className="min-w-0 lg:col-span-5 lg:row-start-2">
+            {details.length > 0 && (
+              <ul className="mb-4 space-y-3">
+                {details.map((d) => (
+                  <motion.li
+                    key={d.label}
+                    whileHover={{ x: 4 }}
+                    transition={BOUNCE}
+                    className="flex items-start gap-4 rounded-2xl border border-rule bg-white p-4"
+                  >
+                    <DetailIcon kind={d.kind} />
+                    <div className="min-w-0 text-[15px] leading-relaxed">
+                      <p className="text-[12px] font-semibold uppercase tracking-[.1em] text-muted">{d.label}</p>
+                      <div className="mt-0.5 text-navy">{d.content}</div>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            )}
+
+            <div className="rounded-2xl border border-rule bg-white p-5">
+              <p className="text-[12px] font-semibold uppercase tracking-[.1em] text-muted">Group companies</p>
+              <ul className="mt-3 space-y-2 text-[14.5px] text-navy">
+                {COMPANIES.map((c) => (
+                  <li key={c.key} className="flex items-start gap-2.5">
+                    <span aria-hidden="true" className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold" />
+                    <span className="min-w-0">
+                      {c.name}
+                      {c.location ? <span className="text-muted"> · {c.location}</span> : null}
+                    </span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </Reveal>
         </div>
