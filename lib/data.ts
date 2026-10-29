@@ -17,7 +17,7 @@ export const CONTACT_DETAILS = {
 };
 
 export const HERO = {
-  image: "/images/hero.webp",
+  image: "/images/banner.webp",
   imageAlt: "SKAD GROUP manufacturing facility",
   imageLabel: "Hero photograph",
 };
