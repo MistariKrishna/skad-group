@@ -22,6 +22,15 @@ import WorldNetwork from "@/components/ui/WorldNetwork";
 import { CONTACT_DETAILS, SITE } from "@/lib/data";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
+/** Official social profiles — add real URLs, remove any you don't have. */
+const SOCIAL_PROFILES: string[] = [
+  // "https://www.linkedin.com/company/skadgroup",
+  // "https://www.instagram.com/skadgroup",
+  // "https://x.com/skadgroup",
+  // "https://www.facebook.com/skadgroup",
+  // "https://www.youtube.com/@skadgroup",
+];
+
 const jsonLd = {
   "@context": "https://schema.org",
   "@graph": [
@@ -34,6 +43,7 @@ const jsonLd = {
       description: SITE_DESCRIPTION,
       ...(CONTACT_DETAILS.email ? { email: CONTACT_DETAILS.email } : {}),
       ...(CONTACT_DETAILS.phone ? { telephone: CONTACT_DETAILS.phone } : {}),
+      ...(SOCIAL_PROFILES.length ? { sameAs: SOCIAL_PROFILES } : {}),
     },
     {
       "@type": "WebSite",

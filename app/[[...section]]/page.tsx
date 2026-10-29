@@ -13,7 +13,11 @@ export function generateStaticParams() {
 export function generateMetadata({ params }: Props): Metadata {
   const id = params.section?.[0];
   const title = id ? SECTION_TITLES[id] : undefined;
-  return title ? { title } : {};
+  return {
+    ...(title ? { title } : {}),
+    // All section URLs show the same page, so point Google to the homepage
+    alternates: { canonical: "/" },
+  };
 }
 
 export default function Page({ params }: Props) {
