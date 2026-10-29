@@ -78,7 +78,7 @@ export const COMPANIES: Company[] = [
     key: "luxora", name: "LUXORA GLOW ESSENTIALS PRIVATE LIMITED", short: "Luxora Glow Essentials",
     sector: "Beauty · Personal care", location: "",
     description: "Premium beauty, hair, skin and personal care. The company behind LUXORA GLOW.",
-    brands: ["LUXORA GLOW"], regNo: "", website: "", image: "/images/luxora-glow-img.webp", imageLabel: "Beauty studio photograph", route: "Business Partnership",
+    brands: ["LUXORA GLOW"], regNo: "", website: "", image: "/images/luxora-glow-bg.webp", imageLabel: "Beauty studio photograph", route: "Business Partnership",
   },
   {
     key: "detara", name: "DETARA LTD", short: "DETARA LTD",
@@ -266,24 +266,24 @@ export const PEOPLE: Person[] = [
     image: "/images/people/lucas-profile.webp",
     expertise: ["Vietnam market", "Strategic partnerships", "International business development"],
   },
-   {
-    name: "Darshan Vaghani",
-    title: "Group Business Lead",
-    group: "Team",
-    image: "", // e.g. "/images/darshan-profile.webp"
-  },
-  {
-    name: "Ujas Dhameliya",
-    title: "Group Technology Lead",
-    group: "Team",
-    image: "", // e.g. "/images/ujas-profile.webp"
-  },
-  {
-    name: "Ramila Buchiya",
-    title: "Business Head, RUPAARI",
-    group: "Team",
-    image: "", // e.g. "/images/ramila-profile.webp"
-  },
+  //  {
+  //   name: "Darshan Vaghani",
+  //   title: "Group Business Lead",
+  //   group: "Team",
+  //   image: "", // e.g. "/images/darshan-profile.webp"
+  // },
+  // {
+  //   name: "Ujas Dhameliya",
+  //   title: "Group Technology Lead",
+  //   group: "Team",
+  //   image: "", // e.g. "/images/ujas-profile.webp"
+  // },
+  // {
+  //   name: "Ramila Buchiya",
+  //   title: "Business Head, RUPAARI",
+  //   group: "Team",
+  //   image: "", // e.g. "/images/ramila-profile.webp"
+  // },
 ];
 
 /* ---------------- Culture ---------------- */
